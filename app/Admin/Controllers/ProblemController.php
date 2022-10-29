@@ -322,9 +322,17 @@ class ProblemController extends Controller
                         $testcase_index=1;
                         foreach ($files_in as $filename_in) {
                             $test_case_in=$zip->getFromName($filename_in);
+                            $filename=basename($filename_in, '.in');
+                            $filename_out=$filename.'.out';
+                            $test_case_out=$zip->getFromName($filename_out);
+                            if ($test_case_out===false) {
+                                continue;
+                            }
                             $info_content['test_cases']["{$testcase_index}"]=[
                                 'input_size' => strlen($test_case_in),
-                                'input_name' => $filename_in
+                                'input_name' => $filename_in,
+                                'output_size' => strlen($test_case_out),
+                                'output_name' => $filename_out
                             ];
                             $testcase_index+=1;
                         }
