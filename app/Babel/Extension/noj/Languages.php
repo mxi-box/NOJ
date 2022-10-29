@@ -33,7 +33,7 @@ class Languages
             ],
             'c_lang_spj_config' => [
                 'exe_name' => 'spj-{spj_version}',
-                'command' => '{exe_path} {in_file_path} {user_out_file_path}',
+                'command' => '{exe_path} {in_file_path} (out_file_path} {user_out_file_path}',
                 'seccomp_rule' => 'c_cpp',
                 'env' => $default_env
             ],
@@ -139,14 +139,14 @@ class Languages
             'py3_lang_config' => [
                 'compile' => [
                     'src_name' => 'solution.py',
-                    'exe_name' => '__pycache__/solution.cpython-37.pyc',
+                    'exe_name' => '__pycache__/solution.cpython-310.pyc',
                     'max_cpu_time' => 3000,
                     'max_real_time' => 10000,
                     'max_memory' => 1024 * 1024 * 1024,
-                    'compile_command' => '/usr/bin/python3.7 -m py_compile {src_path}',
+                    'compile_command' => '/usr/bin/python3.10 -m py_compile {src_path}',
                 ],
                 'run' => [
-                    'command' => '/usr/bin/python3.7 {exe_path}',
+                    'command' => '/usr/bin/python3.10 {exe_path}',
                     'seccomp_rule' => 'general',
                     'env' => array_merge(['MALLOC_ARENA_MAX=1', 'PYTHONIOENCODING=UTF-8'], $default_env)
                 ]
