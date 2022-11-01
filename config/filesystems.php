@@ -80,7 +80,7 @@ return [
         'test_case' => [
             'driver' => 'local',
             'root' => storage_path('test_case'),
-            'visibility' => 'private',
+            'visibility' => 'public',
         ],
 
         'temp' => [
