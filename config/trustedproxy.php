@@ -1,11 +1,8 @@
 <?php
 
-function procTrustProxiestoConfig() {
-    $config = env('TRUSTED_PROXIES', null);
-    if(!is_null($config) && strpos($config, ',') !== false) {
-        $config = explode(',', $config);
-    }
-    return $config;
+$_proxy_config = env('TRUSTED_PROXIES', null);
+if(!is_null($_proxy_config) && strpos($_proxy_config, ',') !== false) {
+    $_proxy_config = explode(',', $_proxy_config);
 }
 
 return [
@@ -25,7 +22,7 @@ return [
      */
     // 'proxies' => null, // [<ip addresses>,], '*', '<ip addresses>,'
 
-    'proxies' => procTrustProxiestoConfig(),
+    'proxies' => $_proxy_config,
 
     /*
      * To trust one or more specific proxies that connect
