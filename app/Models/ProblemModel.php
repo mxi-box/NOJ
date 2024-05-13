@@ -59,15 +59,15 @@ class ProblemModel extends Model
                                             blank($prob_detail["parsed"]["note"]);
             }
             $prob_detail["update_date"]=date_format(date_create($prob_detail["update_date"]), 'm/d/Y H:i:s');
-            $prob_detail["oj_detail"]=DB::table("oj")->where("oid", $prob_detail["OJ"])->first();
+            $prob_detail["oj_detail"]=DB::table("oj")->where("oid", $prob_detail["oj"])->first();
             $prob_detail["samples"]=DB::table("problem_sample")->where("pid", $prob_detail["pid"])->get()->all();
             $prob_detail["tags"]=DB::table("problem_tag")->where("pid", $prob_detail["pid"])->get()->all();
             if ($cid) {
                 $frozen_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
                 $prob_stat=DB::table("submission")->select(
-                    DB::raw("count(sid) as submission_count"),
-                    DB::raw("sum(verdict='accepted') as passed_count"),
-                    DB::raw("sum(verdict='accepted')/count(sid)*100 as ac_rate")
+                    DB::raw("count(1) as submission_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL) as passed_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL)::numeric/NULLIF(count(1), 0)*100 as ac_rate")
                 )->where([
                     "pid"=>$prob_detail["pid"],
                     "cid"=>$cid,
@@ -76,9 +76,9 @@ class ProblemModel extends Model
                 $prob_detail["points"]=DB::table("contest_problem")->where(["cid"=>$cid, "pid"=>$prob_detail["pid"]])->select("points")->first()["points"];
             } else {
                 $prob_stat=DB::table("submission")->select(
-                    DB::raw("count(sid) as submission_count"),
-                    DB::raw("sum(verdict='accepted') as passed_count"),
-                    DB::raw("sum(verdict='accepted')/count(sid)*100 as ac_rate")
+                    DB::raw("count(1) as submission_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL) as passed_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL)::numeric/NULLIF(count(1), 0)*100 as ac_rate")
                 )->where(["pid"=>$prob_detail["pid"]])->first();
                 $prob_detail['vcid']=null;
                 $prob_detail["points"]=0;
@@ -299,13 +299,13 @@ class ProblemModel extends Model
             if (blank($OJ) || !$OJ->status) {
                 return null;
             }
-            $preQuery=$preQuery->where(["OJ"=>$filter['oj']]);
+            $preQuery=$preQuery->where(["oj"=>$filter['oj']]);
         }
         if ($filter['tag']) {
             $preQuery=$preQuery->join("problem_tag", "problem.pid", "=", "problem_tag.pid")->where(["tag"=>$filter['tag']]);
         }
         $paginator=$preQuery->select("problem.pid as pid", "pcode", "title")->orderBy(
-            "OJ",
+            "oj",
             "ASC"
         )->orderBy(
             "order_index",
@@ -333,9 +333,9 @@ class ProblemModel extends Model
         }
         foreach ($prob_list as &$p) {
             $prob_stat=DB::table("submission")->select(
-                DB::raw("count(sid) as submission_count"),
-                DB::raw("sum(verdict='accepted') as passed_count"),
-                DB::raw("sum(verdict='accepted')/count(sid)*100 as ac_rate")
+                DB::raw("count(1) as submission_count"),
+                DB::raw("count(verdict='Accepted' OR NULL) as passed_count"),
+                DB::raw("count(verdict='Accepted' OR NULL)::numeric/NULLIF(count(1), 0)*100 as ac_rate")
             )->where(["pid"=>$p["pid"]])->first();
             if ($prob_stat["submission_count"]==0) {
                 $p["submission_count"]=0;
@@ -392,13 +392,13 @@ class ProblemModel extends Model
 
     public function ocode($pid)
     {
-        $temp=DB::table($this->table)->where(["pid"=>$pid])->select("OJ as oid")->first();
+        $temp=DB::table($this->table)->where(["pid"=>$pid])->select("oj as oid")->first();
         return empty($temp) ? null : DB::table("oj")->where(["oid"=>$temp["oid"]])->select("ocode")->first()["ocode"];
     }
 
     public function oid($pid)
     {
-        return DB::table($this->table)->where(["pid"=>$pid])->select("OJ as oid")->first()["oid"];
+        return DB::table($this->table)->where(["pid"=>$pid])->select("oj as oid")->first()["oid"];
     }
 
     public function clearTags($pid)
@@ -415,7 +415,7 @@ class ProblemModel extends Model
 
     public function getSolvedCount($oid)
     {
-        return DB::table($this->table)->select("pid", "solved_count")->where(["OJ"=>$oid])->get()->all();
+        return DB::table($this->table)->select("pid", "solved_count")->where(["oj"=>$oid])->get()->all();
     }
 
     public function updateDifficulty($pid, $diff_level)
@@ -435,7 +435,7 @@ class ProblemModel extends Model
             'title',
             'time_limit',
             'memory_limit',
-            'OJ',
+            'oj',
             'description',
             'input',
             'output',
@@ -455,7 +455,7 @@ class ProblemModel extends Model
             'order_index',
         ])->toArray());
 
-        $pid=DB::table($this->table)->insertGetId($info);
+        $pid=DB::table($this->table)->insertGetId($info, $this->primaryKey);
 
         if (!empty($data["sample"])) {
             foreach ($data["sample"] as $d) {
@@ -485,7 +485,7 @@ class ProblemModel extends Model
             'title',
             'time_limit',
             'memory_limit',
-            'OJ',
+            'oj',
             'description',
             'input',
             'output',
@@ -689,7 +689,7 @@ class ProblemModel extends Model
             "audit"=>1,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s"),
-        ]);
+        ], 'pdid');
         return $pdid;
     }
 
@@ -712,7 +712,7 @@ class ProblemModel extends Model
             'audit'=>1,
             'created_at'=>date("Y-m-d H:i:s"),
             'updated_at'=>date("Y-m-d H:i:s"),
-        ]);
+        ], 'pdcid');
         return $pdcid;
     }
 

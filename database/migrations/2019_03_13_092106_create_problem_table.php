@@ -24,20 +24,21 @@ class CreateProblemTable extends Migration {
 			$table->string('contest_id')->nullable();
 			$table->string('index_id')->nullable();
 			$table->string('title')->nullable();
-			$table->text('description', 65535)->nullable();
-			$table->text('input', 65535)->nullable();
-			$table->text('output', 65535)->nullable();
-			$table->text('note', 65535)->nullable();
+			$table->longText('description')->nullable();
+			$table->mediumText('input')->nullable();
+			$table->mediumText('output')->nullable();
+			$table->mediumText('note')->nullable();
 			$table->string('input_type', 20)->nullable();
 			$table->string('output_type', 20)->nullable();
 			$table->string('origin')->nullable();
 			$table->string('source')->nullable();
-			$table->integer('OJ')->nullable()->index('problem_oid');
+			$table->integer('oj')->nullable()->index('problem_oid');
 			$table->dateTime('update_date')->nullable();
 			$table->integer('tot_score')->nullable()->default(1);
 			$table->boolean('partial')->nullable()->default(0);
 			$table->boolean('markdown')->nullable()->default(0);
 			$table->string('special_compiler')->nullable();
+            $table->boolean('force_raw')->nullable()->default(0);
 		});
 	}
 

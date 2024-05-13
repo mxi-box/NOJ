@@ -146,7 +146,7 @@
 <div class="container mundb-standard-container">
     <paper-card>
         @include('contest.board.nav',[
-            'nav'=>'status',
+            'nav'=>'balloon',
             'basic'=>$basic_info,
             'clearance'=>$clearance
         ])
@@ -161,9 +161,10 @@
                     <thead>
                         <tr>
                             <th scope="col" style="text-align: left;">SID</th>
+                            <th scope="col">{{__("status.account")}}</th>
                             <th scope="col">
                                 <div class="form-group m-0 p-0">
-                                    <input type="text" class="form-control text-center" id="accountFilter" placeholder="{{__("status.account")}}" onkeypress="applyFilter(event,'account')" value="{{$filter['account']}}" autocomplete="off">
+                                    <input type="text" class="form-control text-center" id="accountFilter" placeholder="Email" onkeypress="applyFilter(event,'account')" value="{{$filter['account']}}" autocomplete="off">
                                 </div>
                             </th>
                             <th scope="col">
@@ -171,11 +172,7 @@
                                     <input type="text" class="form-control text-center" id="problemFilter" placeholder="{{__("status.problem")}}" onkeypress="applyFilter(event,'ncode')" value="{{$filter['ncode']}}" autocomplete="off">
                                 </div>
                             </th>
-                            <th scope="col">
-                                <div class="form-group m-0 p-0">
-                                    <input type="text" class="form-control text-center" id="resultFilter" placeholder="{{__("status.result")}}" onkeypress="applyFilter(event,'result')" value="{{$filter['result']}}" autocomplete="off">
-                                </div>
-                            </th>
+                            <th scope="col">{{__("status.result")}}</th>
                             <th scope="col">{{__("status.time")}}</th>
                             <th scope="col">{{__("status.memory")}}</th>
                             <th scope="col">{{__("status.language")}}</th>
@@ -184,11 +181,12 @@
                     </thead>
                     <tbody>
                         @foreach($submission_record["records"] as $r)
-                        <tr class="@if($r["uid"]==Auth::user()->id && $basic_info["status_visibility"]>1) cm-me @endif  @if($r["share"]) cm-shared @endif" style="cursor:pointer" onclick="fetchSubmissionDetail({{$r['sid']}})">
+                        <tr class="" style="cursor:pointer" onclick="fetchSubmissionDetail({{$r['sid']}})">
                             <th scope="row">{{$r["sid"]}}</th>
-                            <td>{{$r["name"]}} @if($r["nick_name"])<span class="cm-subtext">({{$r["nick_name"]}})</span>@endif</td>
+                            <td>{{$r["name"]}}</td>
+                            <td>{{$r["email"]}}</td>
                             <td>{{$r["ncode"]}}</td>
-                            <td class="{{$r["color"]}}">@if(Auth::check() && $r["uid"]==Auth::user()->id && $r["verdict"]=="Submission Error")<i class="MDI sync resubmit" data-sid="{{$r['sid']}}"></i>@endif {{$r["verdict"]}}</td>
+                            <td class="{{$r["color"]}}">{{$r["verdict"]}}</td>
                             <td>{{$r["time"]}}ms</td>
                             <td>{{$r["memory"]}}k</td>
                             <td>{{$r["language"]}}</td>
@@ -281,8 +279,8 @@
             tempNav+=`${_key}=${encodeURIComponent(_value)}&`;
         });
         if(tempNav.endsWith('&')) tempNav=tempNav.substring(0,tempNav.length-1);
-        if(tempNav==="") location.href="/contest/{{$cid}}/board/status";
-        else location.href="/contest/{{$cid}}/board/status?"+tempNav;
+        if(tempNav==="") location.href="/contest/{{$cid}}/board/balloon";
+        else location.href="/contest/{{$cid}}/board/balloon?"+tempNav;
     }
 
     var filterVal=[];
@@ -293,6 +291,7 @@
 
     @endforeach
 
+    setTimeout(() => { location.reload(); },60000);
 </script>
 @include('js.submission.detail')
 @endsection

@@ -15,8 +15,8 @@ class CreateMessageTable extends Migration
     {
         Schema::create('message', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('sender');
-            $table->integer('receiver');
+            $table->foreign('sender')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver')->references('id')->on('users')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->integer('reply')->nullable();

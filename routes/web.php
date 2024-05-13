@@ -113,7 +113,10 @@ Route::group([ 'namespace' => 'Contest', 'prefix' => 'contest', 'as' => 'contest
                 Route::get('/clarification', 'BoardController@clarification')->name('clarification');
                 Route::get('/print', 'BoardController@print')->name('print');
                 Route::get('/analysis', 'BoardController@analysis')->name('analysis');
+                Route::get('/balloon', 'BoardController@balloon')->name("balloon");
             });
+
+            Route::get('/publicRank', 'BoardController@publicRank')->name('publicRank');
 
             Route::group(['prefix' => 'admin'], function () {
                 Route::group(['middleware' => ['auth']], function () {

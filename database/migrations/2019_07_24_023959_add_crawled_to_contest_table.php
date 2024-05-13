@@ -14,7 +14,7 @@ class AddCrawledToContestTable extends Migration {
 	{
 		Schema::table('contest', function(Blueprint $table)
 		{
-			$table->integer('crawled')->nullable();
+			$table->boolean('crawled')->nullable();
 		});
 	}
 

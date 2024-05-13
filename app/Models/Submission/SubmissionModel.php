@@ -309,7 +309,7 @@ class SubmissionModel extends Model
             'compile_info'=>"",
             'coid'=>$sub['coid'],
             'score'=>$sub['score']
-        ]);
+        ], $this->primaryKey);
 
         return $sid;
     }
@@ -348,8 +348,8 @@ class SubmissionModel extends Model
     public function getEarliestSubmission($oid)
     {
         return DB::table($this->tableName)  ->join('problem', 'problem.pid', '=', 'submission.pid')
-                                            ->select("sid", "OJ as oid", "remote_id", "cid", "jid")
-                                            ->where(['verdict'=>'Waiting', 'OJ'=>$oid])
+                                            ->select("sid", "oj as oid", "remote_id", "cid", "jid")
+                                            ->where(['verdict'=>'Waiting', 'oj'=>$oid])
                                             ->orderBy("sid", "asc")
                                             ->first();
     }
@@ -362,7 +362,7 @@ class SubmissionModel extends Model
         }
         $early_sid=$early_sid["sid"];
         return DB::table($this->tableName)  ->join('problem', 'problem.pid', '=', 'submission.pid')
-                                            ->where(['OJ'=>$oid])
+                                            ->where(['oj'=>$oid])
                                             ->where("sid", ">=", $early_sid)
                                             ->count();
     }
@@ -371,7 +371,7 @@ class SubmissionModel extends Model
     public function getWaitingSubmission()
     {
         $ret=DB::table($this->tableName)    ->join('problem', 'problem.pid', '=', 'submission.pid')
-                                            ->select("sid", "OJ as oid", "remote_id", "cid", "jid", "vcid", "problem.pid as pid")
+                                            ->select("sid", "oj as oid", "remote_id", "cid", "jid", "vcid", "problem.pid as pid")
                                             ->where(['verdict'=>'Waiting'])
                                             ->get()
                                             ->all();
@@ -384,7 +384,7 @@ class SubmissionModel extends Model
     public function countWaitingSubmission($oid)
     {
         return DB::table($this->tableName)  ->join('problem', 'problem.pid', '=', 'submission.pid')
-                                            ->where(['verdict'=>'Waiting', 'OJ'=>$oid])
+                                            ->where(['verdict'=>'Waiting', 'oj'=>$oid])
                                             ->count();
     }
 

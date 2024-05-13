@@ -1,5 +1,5 @@
 @section('addition')
-
+@if(Auth::check())
     <!-- Content here would be shown at every page of the contest -->
     <script>
         window.addEventListener("load",function() {
@@ -37,5 +37,5 @@
             }, 15000);
         }, false);
     </script>
-
+@endif
 @endsection

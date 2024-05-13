@@ -62,6 +62,7 @@ return [
             'clarification' => '答疑服务',
             'print'         => '打印服务',
             'analysis'      => '分析服务',
+            'balloon'       => '气球',
             'admin'         => '管理面板',
         ],
         'counter' => [

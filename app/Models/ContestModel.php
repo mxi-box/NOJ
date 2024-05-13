@@ -122,7 +122,7 @@ class ContestModel extends Model
 
     public function runningContest()
     {
-        return DB::select("select * from contest where begin_time < SYSDATE() and end_time > SYSDATE()");
+        return DB::select("select * from contest where begin_time < CURRENT_TIMESTAMP(0) and end_time > CURRENT_TIMESTAMP(0)");
     }
 
     public function updateCrawlStatus($cid) {
@@ -443,8 +443,20 @@ class ContestModel extends Model
             "contest_problem.cid"=>$cid
         ])->orderBy('number', 'asc')->select("ncode", "alias", "contest_problem.pid as pid", "title", "contest.gid as gid", "contest.practice as practice")->get()->all();
 
-        $frozen_time=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
-        $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen_time=$sql->first()["frozen_time"];
+        // $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
         foreach ($problemSet as &$p) {
             if ($p['practice']) {
@@ -462,9 +474,9 @@ class ContestModel extends Model
             }
             if ($contest_rule==1) {
                 $prob_stat=DB::table("submission")->select(
-                    DB::raw("count(sid) as submission_count"),
-                    DB::raw("sum(verdict='accepted') as passed_count"),
-                    DB::raw("sum(verdict='accepted')/count(sid)*100 as ac_rate")
+                    DB::raw("count(1) as submission_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL) as passed_count"),
+                    DB::raw("count(verdict='Accepted' OR NULL)::numeric/NULLIF(count(1), 0)*100 as ac_rate")
                 )->where([
                     "pid"=>$p["pid"],
                     "cid"=>$cid
@@ -552,7 +564,19 @@ class ContestModel extends Model
             ])->first()["points"]
         ];
 
-        $frozen_time=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen_time=$sql->first()["frozen_time"];
         $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
         $highest_record=DB::table("submission")->where([
@@ -577,7 +601,19 @@ class ContestModel extends Model
 
     public function isFrozen($cid)
     {
-        $frozen=DB::table("contest")->where(["cid"=>$cid])->select("froze_length", DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first();
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen=$sql->first();
         if (empty($frozen["froze_length"])) {
             return false;
         } else {
@@ -596,8 +632,20 @@ class ContestModel extends Model
             "color"=>"",
         ];
 
-        $frozen_time=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
-        $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen_time=$sql->first()["frozen_time"];
+        // $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
         $ac_record=DB::table("submission")->where([
             "cid"=>$cid,
@@ -661,8 +709,20 @@ class ContestModel extends Model
         $ret=[];
 
         $contest_info=DB::table("contest")->where("cid", $cid)->first();
-        $frozen_time=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
-        $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen_time=$sql->first()["frozen_time"];
+        // $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
         if ($contest_info["registration"]) {
             $submissionUsers=DB::table("contest_participant")->where([
@@ -970,7 +1030,7 @@ class ContestModel extends Model
             "public"=>"0",
             "uid"=>$uid,
             "created_at"=>date("Y-m-d H:i:s")
-        ]);
+        ], 'ccid');
     }
 
     public function issueAnnouncement($cid, $title, $content, $uid, $remote_code=null)
@@ -984,7 +1044,7 @@ class ContestModel extends Model
             "uid"=>$uid,
             "created_at"=>date("Y-m-d H:i:s"),
             "remote_code"=>$remote_code
-        ]);
+        ], 'ccid');
     }
 
     public function remoteAnnouncement($remote_code) {
@@ -1040,7 +1100,19 @@ class ContestModel extends Model
             $problemSet[(string) $p["pid"]]=["ncode"=>$p["ncode"], "points"=>$p["points"], "tot_score"=>$p["tot_score"]];
         }
 
-        $frozen_time=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
+        $sql=DB::table("contest")->where(["cid"=>$cid]);
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                break;
+            case 'pgsql':
+                $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $frozen_time=$sql->first()["frozen_time"];
         $end_time=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
         $contestEnd=time()>$end_time;
 
@@ -1297,14 +1369,13 @@ class ContestModel extends Model
         }
         $groupModel=new GroupModel();
         $contest_info=DB::table("contest")->where("cid", $cid)->first();
-        $userInfo=DB::table('group_member')->where('gid', $contest_info["gid"])->where('uid', $uid)->get()->first();
 
         if (empty($contest_info)) {
             // contest not exist
             return 0;
         }
 
-        if ($uid==$contest_info['assign_uid'] || $groupModel->judgeClearance($contest_info['gid'], $uid)==3) {
+        if ($uid==$contest_info['assign_uid'] || $groupModel->judgeClearance($contest_info['gid'], $uid)>=2) {
             return 3;
         }
 
@@ -1313,10 +1384,6 @@ class ContestModel extends Model
         if (!$contest_started) {
             // not started or do not exist
             return 0;
-        }
-
-        if (!is_null($userInfo) && $userInfo["role"]==3) {
-            return 3;
         }
 
         if ($contest_info["public"]) {
@@ -1477,7 +1544,7 @@ class ContestModel extends Model
                 "pid"=>$p['pid'],
                 "alias"=>"",
                 "points"=>$p["points"]
-            ]);
+            ], 'cpid');
         }
     }
 
@@ -1508,7 +1575,7 @@ class ContestModel extends Model
                 "created_at"=>date("Y-m-d H:i:s"),
                 "crawled" => isset($config['vcid']) ? $config['crawled'] : null,
                 "audit_status"=>$config["public"] ? 0 : 1
-            ]);
+            ], $this->primaryKey);
 
             foreach ($problems as $p) {
                 $pid=DB::table("problem")->where(["pcode"=>$p["pcode"]])->select("pid")->first()["pid"];
@@ -1537,7 +1604,19 @@ class ContestModel extends Model
                     $chache['problemSet']=DB::table("contest_problem")->join("problem", "contest_problem.pid", "=", "problem.pid")->where([
                         "cid"=>$cid
                     ])->orderBy('number', 'asc')->select("ncode", "alias", "contest_problem.pid as pid", "title")->get()->all();
-                    $chache['frozen_time']=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
+                    $sql=DB::table("contest")->where(["cid"=>$cid]);
+                    switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+                    {
+                        case 'mysql':
+                            $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                            break;
+                        case 'pgsql':
+                            $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                            break;
+                        default:
+                            throw new \Exception('Driver not supported.');
+                    }
+                    $chache['frozen_time']=$sql->first()["frozen_time"];
                     $chache['end_time']=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
                     $id=0;
@@ -1566,7 +1645,19 @@ class ContestModel extends Model
                     $chache['problemSet']=DB::table("contest_problem")->join("problem", "contest_problem.pid", "=", "problem.pid")->where([
                         "cid"=>$cid
                     ])->orderBy('number', 'asc')->select("ncode", "alias", "contest_problem.pid as pid", "title")->get()->all();
-                    $chache['frozen_time']=DB::table("contest")->where(["cid"=>$cid])->select(DB::raw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time"))->first()["frozen_time"];
+                    $sql=DB::table("contest")->where(["cid"=>$cid]);
+                    switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+                    {
+                        case 'mysql':
+                            $sql = $sql->selectRaw("UNIX_TIMESTAMP(end_time)-froze_length as frozen_time");
+                            break;
+                        case 'pgsql':
+                            $sql = $sql->selectRaw("extract(epoch from end_time-make_interval(secs=>froze_length))::int as frozen_time");
+                            break;
+                        default:
+                            throw new \Exception('Driver not supported.');
+                    }
+                    $chache['frozen_time']=$sql->first()["frozen_time"];
                     $chache['end_time']=strtotime(DB::table("contest")->where(["cid"=>$cid])->select("end_time")->first()["end_time"]);
 
                     if ($chache['contest_info']["registration"]) {
@@ -2034,5 +2125,52 @@ class ContestModel extends Model
                 'sid' => $submissions
             ];
         }
+    }
+    
+    public function getBalloon($filter, $cid)
+    {
+        $problemSet_temp=DB::table("contest_problem")->join("problem", "contest_problem.pid", "=", "problem.pid")->where([
+            "cid"=>$cid
+        ])->orderBy('number', 'asc')->select("ncode", "contest_problem.pid as pid")->get()->all();
+        $problemSet=[];
+        foreach ($problemSet_temp as $p) {
+            $problemSet[$p["pid"]]=$p["ncode"];
+        }
+        switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+        {
+            case 'pgsql':
+                $q=SubmissionModel::orderBy('uid')->orderBy('pid')->orderBy('sid')
+                ->where('verdict', 'Accepted')
+                ->where('cid', $cid)
+                ->join("users", "users.id", "=", "submission.uid")
+                ->selectRaw('DISTINCT ON (uid, pid) sid, uid, pid, name, email, color, verdict, time, memory, language, score, submission_date');
+                break;
+            default:
+                throw new \Exception('Driver not supported.');
+        }
+        $filter['pid']=array_search($filter['ncode'], array_column($problemSet_temp, 'ncode'));
+        if ($filter['pid']===false) {
+            $filter['pid']=is_null($filter['ncode']) ?null:-1;
+        } else {
+            $filter['pid']=$problemSet_temp[$filter['pid']]['pid'];
+        }
+        if ($filter["account"]) {
+            $q=$q->whereRaw($filter["account"]);
+        }
+        if ($filter["pid"]) {
+            $q=$q->where(["pid"=>$filter["pid"]]);
+        }
+        $paginator=DB::query()->from($q, 's')->orderByDesc('sid')->paginate(50);
+        $records=$paginator->all();
+        
+        foreach ($records as &$r) {
+            $r["submission_date_parsed"]=formatHumanReadableTime(date('Y-m-d H:i:s', $r["submission_date"]));
+            $r["submission_date"]=date('Y-m-d H:i:s', $r["submission_date"]);
+            $r["ncode"]=$problemSet[$r["pid"]];
+        }
+        return [
+            "paginator"=>$paginator,
+            "records"=>$records
+        ];
     }
 }

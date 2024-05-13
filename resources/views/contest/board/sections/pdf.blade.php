@@ -74,9 +74,9 @@
             @if($generatePDFStatus=='finished')
                 <button type="button" class="btn btn-outline-info"><i class="MDI checkbox-marked-circle-outline"></i> PDF Generating Completed</button>
             @endif
-            @if(in_array($generatePDFStatus, ['finished','failed','empty']))
+            <!-- @if(in_array($generatePDFStatus, ['finished','failed','empty']))
                 <button type="button" class="btn btn-outline-success" onclick="generatePDF()"><i class="MDI file-pdf-box"></i> Generate PDF</button>
-            @endif
+            @endif -->
         </div>
     </div>
 </section-panel>

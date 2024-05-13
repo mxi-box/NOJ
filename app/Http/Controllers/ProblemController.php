@@ -119,14 +119,14 @@ class ProblemController extends Controller
         if ($problem->isBlocked($prob_detail["pid"]) || $problem->isHidden($prob_detail["pid"])) {
             return abort('403');
         }
-        $compiler_list=$compiler->list($prob_detail["OJ"], $prob_detail["pid"]);
+        $compiler_list=$compiler->list($prob_detail["oj"], $prob_detail["pid"]);
         $prob_status=$submission->getProblemStatus($prob_detail["pid"], Auth::user()->id);
 
         $compiler_pref=$compiler->pref($compiler_list, $prob_detail["pid"], Auth::user()->id);
         $pref=$compiler_pref["pref"];
         $submit_code=$compiler_pref["code"];
 
-        $oj_detail=$problem->ojdetail($prob_detail["OJ"]);
+        $oj_detail=$problem->ojdetail($prob_detail["oj"]);
 
         if (empty($prob_status)) {
             $prob_status=[

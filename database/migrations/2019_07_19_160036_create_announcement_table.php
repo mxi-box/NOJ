@@ -15,7 +15,7 @@ class CreateAnnouncementTable extends Migration {
 		Schema::create('announcement', function(Blueprint $table)
 		{
 			$table->integer('anid', true);
-			$table->integer('uid')->nullable()->index('group_notice_uid');
+			$table->integer('uid')->nullable()->index();
 			$table->string('title')->nullable();
 			$table->text('content', 65535)->nullable();
 			$table->dateTime('post_date')->nullable();

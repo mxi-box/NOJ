@@ -19,7 +19,7 @@ class CreateContestClarificationTable extends Migration {
 			$table->integer('cid')->nullable()->index('contest_clarification_cid');
 			$table->string('title')->nullable();
 			$table->text('content', 65535)->nullable();
-			$table->text('relpy', 65535)->nullable();
+			$table->text('reply', 65535)->nullable();
 			$table->dateTime('create_time')->nullable();
 			$table->boolean('public')->nullable()->comment('1 all 0 nobody');
 		});

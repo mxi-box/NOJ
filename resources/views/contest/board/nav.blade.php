@@ -39,6 +39,9 @@
             <a href="/contest/{{$cid}}/board/analysis" data-nav="analysis"><nav-item>{{__("contest.inside.topbar.analysis")}}</nav-item></a>
         @endif
     @endif
+    @if($clearance>=2)
+        <a href="/contest/{{$cid}}/board/balloon" data-nav="balloon"><nav-item>{{__("contest.inside.topbar.balloon")}}</nav-item></a>
+    @endif
     @if($clearance>2)
         <a href="/contest/{{$cid}}/board/admin" data-nav="admin"><nav-item>{{__("contest.inside.topbar.admin")}}</nav-item></a>
     @endif

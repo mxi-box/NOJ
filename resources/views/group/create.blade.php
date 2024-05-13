@@ -181,7 +181,7 @@ window.addEventListener('load',function(){
         const name = document.querySelector('#groupName').value;
         const gcode = document.querySelector('#groupSite').value;
         const img = document.querySelector('#avatar-file').files[0];
-        const Public = document.querySelector('#groupPublic').checked === true ? 1 : 2;
+        const Public = document.querySelector('#groupPublic').checked === true ? 1 : 0;
         const description = document.querySelector("#groupDescription").value;
         const joinPolicy = document.querySelector("#policy").value;
         const data = new FormData();

@@ -259,7 +259,7 @@ class ContestAdminController extends Controller
         }
         $gid=$contestModel->gid($all_data["cid"]);
         $clearance=$groupModel->judgeClearance($gid, Auth::user()->id);
-        if ($clearance<3) {
+        if ($clearance<2) {
             return ResponseModel::err(2001);
         }
         $accountModel=new AccountModel();

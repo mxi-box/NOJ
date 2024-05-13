@@ -21,7 +21,7 @@ class CreateGroupTable extends Migration {
 			$table->boolean('public')->nullable();
 			$table->boolean('verified')->nullable();
 			$table->text('description', 65535)->nullable();
-			$table->integer('join_policy')->nullable();
+			$table->tinyInteger('join_policy')->nullable();
 			$table->string('custom_icon')->nullable();
 			$table->string('custom_title')->nullable();
 			$table->dateTime('create_time')->nullable();

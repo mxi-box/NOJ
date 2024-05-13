@@ -14,8 +14,8 @@ class AddForeignKeysToGroupNoticeTable extends Migration {
 	{
 		Schema::table('group_notice', function(Blueprint $table)
 		{
-			$table->foreign('gid', 'group_notice_gid')->references('gid')->on('group')->onUpdate('CASCADE')->onDelete('CASCADE');
-			$table->foreign('uid', 'group_notice_uid')->references('id')->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
+			$table->foreign('gid', 'group_notice_gid_f')->references('gid')->on('group')->onUpdate('CASCADE')->onDelete('CASCADE');
+			$table->foreign('uid', 'group_notice_uid_f')->references('id')->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
 	}
 
@@ -29,8 +29,8 @@ class AddForeignKeysToGroupNoticeTable extends Migration {
 	{
 		Schema::table('group_notice', function(Blueprint $table)
 		{
-			$table->dropForeign('group_notice_gid');
-			$table->dropForeign('group_notice_uid');
+			$table->dropForeign('group_notice_gid_f');
+			$table->dropForeign('group_notice_uid_f');
 		});
 	}
 

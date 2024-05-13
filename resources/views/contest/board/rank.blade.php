@@ -155,7 +155,7 @@
                         @if($contest_rule==1)
                             {{-- ACM/ICPC Mode --}}
                             @foreach($contest_rank as $r)
-                            <tr class="@if($r["uid"]==Auth::user()->id) cm-me @endif @if(isset($r["remote"]) && $r["remote"]) cm-remote @endif">
+                            <tr class="@if(Auth::check() && $r["uid"]==Auth::user()->id) cm-me @endif @if(isset($r["remote"]) && $r["remote"]) cm-remote @endif">
                                 <th scope="row">{{$r["rank"]}}</th>
                                 <td>{{$r["name"]}} @if($r["nick_name"])<span class="cm-subtext">({{$r["nick_name"]}})</span>@endif</td>
                                 <td>{{$r["score"]}}</td>
@@ -172,7 +172,7 @@
                         @else
                             {{-- IOI Mode --}}
                             @foreach($contest_rank as $r)
-                            <tr class="@if($r["uid"]==Auth::user()->id) cm-me @endif @if(isset($r["remote"]) && $r["remote"]) cm-remote @endif">
+                            <tr class="@if(Auth::check() && $r["uid"]==Auth::user()->id) cm-me @endif @if(isset($r["remote"]) && $r["remote"]) cm-remote @endif">
                                 <th scope="row">{{$loop->iteration}}</th>
                                 <td>{{$r["name"]}} @if($r["nick_name"])<span class="cm-subtext">({{$r["nick_name"]}})</span>@endif</td>
                                 <td>{{round($r["score"])}}</td>
@@ -198,12 +198,12 @@
 </script>
 @include('js.submission.detail')
 @endsection
-
+@if(Auth::check())
 @push('additionScript')
 <script>
     var changingRank=false;
     var showRemote=true;
-
+    
     $("body").keydown(function(event) {
         if(event.which==72){
             if(changingRank) return;
@@ -216,3 +216,4 @@
     });
 </script>
 @endpush
+@endif

@@ -14,7 +14,7 @@ class CreateProblemTagTable extends Migration {
 	{
 		Schema::create('problem_tag', function(Blueprint $table)
 		{
-			$table->integer('pid')->index('pid');
+			$table->integer('pid')->index();
 			$table->string('tag')->nullable()->index('tag');
 		});
 	}

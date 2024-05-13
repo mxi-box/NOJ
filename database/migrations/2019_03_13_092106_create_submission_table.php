@@ -30,6 +30,7 @@ class CreateSubmissionTable extends Migration {
 			$table->integer('jid')->nullable()->index('submission_jid');
 			$table->integer('coid')->nullable()->index('submission_coid');
 			$table->integer('score')->nullable();
+            $table->boolean('share')->nullable()->default(0);
 		});
 	}
 

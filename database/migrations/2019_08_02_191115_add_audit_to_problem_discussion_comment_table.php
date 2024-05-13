@@ -14,7 +14,7 @@ class AddAuditToProblemDiscussionCommentTable extends Migration
     public function up()
     {
         Schema::table('problem_discussion_comment', function (Blueprint $table) {
-            $table->integer('audit')->nullable()->default("1");
+            $table->tinyInteger('audit')->nullable()->default(1);
         });
     }
 

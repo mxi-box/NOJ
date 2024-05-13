@@ -30,9 +30,9 @@
 <setting-card>
     <basic-info-section class="paper-card">
         <p><i class="MDI account-circle"></i>{{__('dashboard.setting.baseInfo')}}</p>
-        <div class="form-group" data-toggle="tooltip" data-placement="top" @if($info['contest_account']) title="{{__('dashboard.setting.tipUsername')}}" @endif>
+        <div class="form-group" data-toggle="tooltip" data-placement="top">
             <label for="username" class="bmd-label-floating">{{__('dashboard.setting.username')}}</label>
-            <input type="text" name="username" class="form-control" value="{{ $info['name'] }}" id="username" maxlength="16" autocomplete="off" required @if($info['contest_account']) disabled @endif>
+            <input type="text" name="username" class="form-control" value="{{ $info['name'] }}" id="username" maxlength="16" autocomplete="off" required>
         </div>
         <div class="form-group">
             <label for="describes" class="bmd-label-floating">{{__('dashboard.setting.describes')}}</label>

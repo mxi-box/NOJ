@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4",
+        "php": "^8.2",
         "oomphinc/composer-installers-extender": "^2.0",
         "asundust/auth-captcha": "^2.0.14",
         "encore/laravel-admin": "^1.7",
@@ -64,7 +64,6 @@
         "x3zvawq/noj_simplemde": "^1.0.1",
         "zsgsdesign/noj-admin-clike-editor": "^1.0.0",
         "lcobucci/jwt": "4.0.4",
-        "nesk/puphpeteer": "^2.0",
         "barryvdh/laravel-dompdf": "^0.9.0"
     },
     "require-dev": {
@@ -82,7 +81,11 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": false,
-        "secure-http": false
+        "secure-http": false,
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
     },
     "extra": {
         "laravel": {
@@ -142,10 +145,14 @@
             "@php artisan key:generate --ansi"
         ]
     },
-    "repositories": [
-        {
+    "repositories": {
+        "0": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        },
+        "1": {
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ]
+    }
 }

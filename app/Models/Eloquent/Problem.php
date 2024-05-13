@@ -51,7 +51,7 @@ class Problem extends Model
 
     public function onlinejudge()
     {
-        return $this->belongsTo('App\Models\Eloquent\OJ', 'OJ', 'oid');
+        return $this->belongsTo('App\Models\Eloquent\OJ', 'oj', 'oid');
     }
 
     public function getProblemStatusAttribute()

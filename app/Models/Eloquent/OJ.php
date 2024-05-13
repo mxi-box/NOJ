@@ -27,6 +27,6 @@ class OJ extends Model
 
     public function problems()
     {
-        return $this->hasMany('App\Models\Eloquent\Problem', 'oid', 'OJ');
+        return $this->hasMany('App\Models\Eloquent\Problem', 'oid', 'oj');
     }
 }

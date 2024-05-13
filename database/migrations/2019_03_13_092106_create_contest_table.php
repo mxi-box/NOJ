@@ -28,11 +28,14 @@ class CreateContestTable extends Migration {
 			$table->boolean('public')->nullable()->comment('1 all 0 group, determine who can see the contest, either way people who participate in this event could see the contest');
 			$table->boolean('registration')->nullable()->comment('1 required 0 no, determine whether people need to register before attend');
 			$table->dateTime('registration_due')->nullable()->comment('the deadline to register the contest');
-			$table->integer('registant_type')->nullable()->comment('2 all,1 group,0 none');
+			$table->tinyInteger('registant_type')->nullable()->comment('2 all,1 group,0 none');
 			$table->integer('froze_length')->nullable()->comment('3600 means froze board in the last hour');
-			$table->boolean('status_visibility')->nullable()->comment('2 view all, 1 view only oneself, 0 cannot');
+			$table->tinyInteger('status_visibility')->nullable()->comment('2 view all, 1 view only oneself, 0 cannot');
 			$table->dateTime('create_time')->nullable();
-			$table->integer('audit_status')->comment('1 passed 0 passing -1 denied');
+			$table->tinyInteger('audit_status')->comment('1 passed 0 passing -1 denied');
+            $table->string('custom_icon')->nullable();
+			$table->string('custom_title')->nullable();
+            $table->string('img')->nullable()->default("/static/img/contest/default.jpg");
 		});
 	}
 

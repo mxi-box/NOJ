@@ -15,8 +15,19 @@ class ProblemSearchModel extends Model
     {
         $result=[];
         if (strlen($key)>=2) {
+            switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+            {
+                case 'mysql':
+                    $sql = 'MATCH(`title`) AGAINST (? IN BOOLEAN MODE)';
+                    break;
+                case 'pgsql':
+                    $sql = "to_tsvector('zh', title) @@ plainto_tsquery('zh', ?)";
+                    break;
+                default:
+                    throw new \Exception('Driver not supported.');
+            }
             $ret=self::where('pcode', $key)
-                ->orWhereRaw('MATCH(`title`) AGAINST (? IN BOOLEAN MODE)', [$key])
+                ->orWhereRaw($sql, [$key])
                 ->select('pid', 'pcode', 'title')
                 ->limit(120)
                 ->get()->all();

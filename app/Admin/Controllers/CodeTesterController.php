@@ -48,7 +48,7 @@ class CodeTesterController extends Controller
         $box->style('success');
         $form=new Form();
         $form->select('oid', __('admin.tester.oj'))->options($OJ->pluck('name', 'oid'))->help(__('admin.tester.help.onlinejudge'))->rules('required');
-        $form->select('pid', __('admin.tester.pid'))->options(Problem::where(["OJ"=>$oid])->get()->sortBy('readable_name')->pluck('readable_name', 'pid'))->rules('required');
+        $form->select('pid', __('admin.tester.pid'))->options(Problem::where(["oj"=>$oid])->get()->sortBy('readable_name')->pluck('readable_name', 'pid'))->rules('required');
         $form->select('coid', __('admin.tester.coid'))->options(Compiler::where(["oid"=>$oid])->get()->pluck('display_name', 'coid'))->rules('required');
         $form->textarea('solution', __('admin.tester.solution'))->rows(20)->rules('required');
         $form->action(route('admin.codetester.tester'));

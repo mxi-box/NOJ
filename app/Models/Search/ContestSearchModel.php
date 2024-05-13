@@ -5,6 +5,7 @@ namespace App\Models\Search;
 use App\Models\ContestModel;
 use Illuminate\Database\Eloquent\Model;
 use Auth;
+use DB;
 
 class ContestSearchModel extends Model
 {
@@ -18,7 +19,18 @@ class ContestSearchModel extends Model
         $result=[];
         //contest name find
         if (strlen($key)>=2) {
-            $ret=self::whereRaw('MATCH(`name`) AGAINST (? IN BOOLEAN MODE)', [$key])
+            switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+            {
+                case 'mysql':
+                    $sql = 'MATCH(`name`) AGAINST (? IN BOOLEAN MODE)';
+                    break;
+                case 'pgsql':
+                    $sql = "to_tsvector('zh', name) @@ plainto_tsquery('zh', ?)";
+                    break;
+                default:
+                    throw new \Exception('Driver not supported.');
+            }
+            $ret=self::whereRaw($sql, [$key])
                 ->select('cid', 'gid', 'name', 'rule', 'public', 'verified', 'practice', 'rated', 'anticheated', 'begin_time', 'end_time')
                 ->orderBy('end_time', 'DESC')
                 ->limit(120)

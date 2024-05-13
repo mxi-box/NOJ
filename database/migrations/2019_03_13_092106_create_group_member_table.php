@@ -17,7 +17,7 @@ class CreateGroupMemberTable extends Migration {
 			$table->integer('gmid', true);
 			$table->integer('gid')->nullable()->index('member_gid');
 			$table->integer('uid')->nullable()->index('member_uid');
-			$table->integer('role')->nullable()->comment('3 leader
+			$table->tinyInteger('role')->nullable()->comment('3 leader
 2 manager
 1 member
 0 applicant

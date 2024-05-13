@@ -48,7 +48,7 @@ class AccountModel extends Model
             $name=strtoupper($ccode).str_pad($starting+$i, 3, "0", STR_PAD_LEFT);
             $uid=$this->add([
                 'name' => $name,
-                'email' => "$name@icpc.njupt.edu.cn",
+                'email' => "$name@icpc.hfut",
                 'email_verified_at' => date("Y-m-d H:i:s"),
                 'password' => $pass,
                 'avatar' => "/static/img/avatar/default.png",
@@ -59,7 +59,7 @@ class AccountModel extends Model
             $ret[]=[
                 "uid"=>$uid,
                 "name"=>$name,
-                "email"=>"$name@icpc.njupt.edu.cn",
+                "email"=>"$name@icpc.hfut",
                 "password"=>$pass
             ];
         }

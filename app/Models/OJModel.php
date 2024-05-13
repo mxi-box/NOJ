@@ -10,8 +10,9 @@ use Exception;
 class OJModel extends Model
 {
     protected $tableName='oj';
+    protected $primaryKey='oid';
 
-    public static function oid($ocode)
+public static function oid($ocode)
     {
         $ret=DB::table('oj')->where(["ocode"=>$ocode])->first();
         return is_null($ret) ?null:$ret["oid"];
@@ -29,7 +30,7 @@ class OJModel extends Model
 
     public static function insertOJ($row)
     {
-        return DB::table('oj')->insertGetId($row);
+        return DB::table('oj')->insertGetId($row, 'oid');
     }
 
     public static function updateOJ($oid, $row)

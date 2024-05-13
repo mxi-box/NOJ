@@ -39,7 +39,7 @@ class ProblemController extends Controller
         if ($validator->fails()) {
             return ResponseModel::err(3002);
         }
-        if (!$problemModel->ojdetail($problemModel->detail($problemModel->pcode($all_data['pid']))['OJ'])['status']) {
+        if (!$problemModel->ojdetail($problemModel->detail($problemModel->pcode($all_data['pid']))['oj'])['status']) {
             return ResponseModel::err(6001);
         }
         if ($problemModel->isBlocked($all_data["pid"], isset($all_data["contest"]) ? $all_data["contest"] : null)) {
@@ -307,7 +307,7 @@ class ProblemController extends Controller
         $problemDetails=$problemModel->basic($submissionData["pid"]);
         $lang=$compilerModel->detail($submissionData["coid"]);
 
-        if (!$problemModel->ojdetail($problemDetails['OJ'])['status']) {
+        if (!$problemModel->ojdetail($problemDetails['oj'])['status']) {
             return ResponseModel::err(6001);
         }
 

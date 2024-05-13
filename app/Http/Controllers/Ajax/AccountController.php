@@ -51,14 +51,14 @@ class AccountController extends Controller
                 "min:1",
                 Rule::unique('users', 'name')->ignore(Auth::user()->id)
             ],
-            "describes" => "required|string|max:255"
+            "describes" => "nullable|string|max:255"
         ]);
         $username=$request->input('username');
         $describes=$request->input('describes');
         $user=Auth::user();
-        if (!Auth::user()->contest_account) {
+        // if (!Auth::user()->contest_account) {
             $user->name=$username;
-        }
+        // }
         $user->describes=$describes;
         $user->save();
         return ResponseModel::success();

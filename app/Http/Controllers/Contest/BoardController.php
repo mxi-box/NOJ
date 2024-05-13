@@ -89,7 +89,6 @@ class BoardController extends Controller
                 return Redirect::route('contest.detail', ['cid' => $cid]);
             }
         }
-        $basicInfo=$contestModel->basic($cid);
         if ($basicInfo['public'] && !$basicInfo['audit_status']) {
             return Redirect::route('contest.detail', ['cid' => $cid]);
         }
@@ -106,13 +105,13 @@ class BoardController extends Controller
         if ($problemModel->isBlocked($prob_detail["pid"], $cid)) {
             return abort('403');
         }
-        $compiler_list=$compilerModel->list($prob_detail["OJ"], $prob_detail["pid"]);
+        $compiler_list=$compilerModel->list($prob_detail["oj"], $prob_detail["pid"]);
         $prob_status=$submissionModel->getProblemStatus($prob_detail["pid"], Auth::user()->id, $cid);
         $problemSet=$contestModel->contestProblems($cid, Auth::user()->id);
         $compiler_pref=$compilerModel->pref($compiler_list, $prob_detail["pid"], Auth::user()->id, $cid);
         $pref=$compiler_pref["pref"];
         $submit_code=$compiler_pref["code"];
-        $oj_detail=$problemModel->ojdetail($prob_detail["OJ"]);
+        $oj_detail=$problemModel->ojdetail($prob_detail["oj"]);
 
         if (empty($prob_status)) {
             $prob_status=[
@@ -167,7 +166,6 @@ class BoardController extends Controller
                 return Redirect::route('contest.detail', ['cid' => $cid]);
             }
         }
-        $basicInfo=$contestModel->basic($cid);
         if ($basicInfo['public'] && !$basicInfo['audit_status']) {
             return Redirect::route('contest.detail', ['cid' => $cid]);
         }
@@ -230,7 +228,6 @@ class BoardController extends Controller
                 return Redirect::route('contest.detail', ['cid' => $cid]);
             }
         }
-        $basicInfo=$contestModel->basic($cid);
         if ($basicInfo['public'] && !$basicInfo['audit_status']) {
             return Redirect::route('contest.detail', ['cid' => $cid]);
         }
@@ -338,7 +335,6 @@ class BoardController extends Controller
                 return Redirect::route('contest.detail', ['cid' => $cid]);
             }
         }
-        $basicInfo=$contestModel->basic($cid);
         if ($basicInfo['public'] && !$basicInfo['audit_status']) {
             return Redirect::route('contest.detail', ['cid' => $cid]);
         }
@@ -352,6 +348,96 @@ class BoardController extends Controller
             'cid'=>$cid,
             'custom_info' => $customInfo,
             'clearance'=> $clearance,
+            'basic'=>$basicInfo,
+        ]);
+    }
+
+    /**
+     * Show the Balloon status
+     *
+     * @return Response
+     */
+    public function balloon(Request $request)
+    {
+        $all_data=$request->all();
+        $filter["ncode"]=isset($all_data["ncode"]) ? $all_data["ncode"] : null;
+        $filter["account"]=isset($all_data["account"]) ? $all_data["account"] : null;
+        $cid=$request->cid;
+        $contestModel=new ContestModel();
+        $clearance=$contestModel->judgeClearance($cid, Auth::user()->id);
+        $basicInfo=$contestModel->basic($cid);
+        if (!$clearance || $clearance<2) {
+            return Redirect::route('contest.detail', ['cid' => $cid]);
+        }
+        if ($basicInfo['public'] && !$basicInfo['audit_status']) {
+            return Redirect::route('contest.detail', ['cid' => $cid]);
+        }
+        $contest_name=$contestModel->contestName($cid);
+        $customInfo=$contestModel->getCustomInfo($cid);
+        $submissionRecordSet=$contestModel->getBalloon($filter, $cid);
+        $rankFrozen=$contestModel->isFrozen($cid);
+        $frozenTime=$contestModel->frozenTime($cid);
+        return view('contest.board.balloon', [
+            'page_title'=>"Status",
+            'navigation' => "Contest",
+            'site_title'=>$contest_name,
+            'contest_name'=>$contest_name,
+            'basic_info'=>$basicInfo,
+            'cid'=>$cid,
+            'custom_info' => $customInfo,
+            'submission_record' => $submissionRecordSet,
+            'rank_frozen' => $rankFrozen,
+            'frozen_time' => $frozenTime,
+            'clearance'=> $clearance,
+            'filter' => $filter,
+        ]);
+    }
+
+    /**
+     * Show the public Contest Rank Page.
+     *
+     * @return Response
+     */
+    public function publicRank($cid)
+    {
+        $contestModel=new ContestModel();
+        $basicInfo=$contestModel->basic($cid);
+        if ($basicInfo['public'] && !$basicInfo['audit_status']) {
+            return Redirect::route('contest.detail', ['cid' => $cid]);
+        }
+        $contest_name=$contestModel->contestName($cid);
+        $contest_rule=$contestModel->contestRule($cid);
+        $problemSet=$contestModel->contestProblems($cid, 0);
+        $customInfo=$contestModel->getCustomInfo($cid);
+        $contestRank=$contestModel->contestRank($cid, 0);
+
+        // To determine the ranking
+        foreach ($contestRank as $i => &$r) {
+            if ($i!=0) {
+                if ($r['score']==$contestRank[$i-1]['score'] && ($contest_rule==1 ? ($r['penalty']==$contestRank[$i-1]['penalty']) : 1)) {
+                    $r['rank']=$contestRank[$i-1]['rank'];
+                } else {
+                    $r['rank']=$i+1;
+                }
+            } else {
+                $r['rank']=1;
+            }
+        }
+        $rankFrozen=$contestModel->isFrozen($cid);
+        $frozenTime=$contestModel->frozenTime($cid);
+        return view('contest.board.rank', [
+            'page_title'=>"Rank",
+            'navigation' => "Contest",
+            'site_title'=>$contest_name,
+            'contest_name'=>$contest_name,
+            'contest_rule'=>$contest_rule,
+            'cid'=>$cid,
+            'problem_set'=>$problemSet,
+            'custom_info' => $customInfo,
+            'contest_rank' => $contestRank,
+            'rank_frozen' => $rankFrozen,
+            'frozen_time' => $frozenTime,
+            'clearance'=> 0,
             'basic'=>$basicInfo,
         ]);
     }

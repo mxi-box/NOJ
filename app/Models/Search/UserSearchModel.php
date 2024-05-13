@@ -3,6 +3,7 @@
 namespace App\Models\Search;
 
 use Illuminate\Database\Eloquent\Model;
+use DB;
 
 class UserSearchModel extends Model
 {
@@ -12,8 +13,19 @@ class UserSearchModel extends Model
     {
         $result=[];
         if (strlen($key)>=2) {
+            switch(DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME))
+            {
+                case 'mysql':
+                    $sql = 'MATCH(`name`) AGAINST (? IN BOOLEAN MODE)';
+                    break;
+                case 'pgsql':
+                    $sql = "to_tsvector('zh', name) @@ plainto_tsquery('zh', ?)";
+                    break;
+                default:
+                    throw new \Exception('Driver not supported.');
+            }
             $ret=self::where('email', $key)
-                ->orWhereRaw('MATCH(`name`) AGAINST (? IN BOOLEAN MODE)', [$key])
+                ->orWhereRaw($sql, [$key])
                 ->select('id', 'avatar', 'name', 'describes', 'professional_rate')
                 ->orderBy('professional_rate', 'DESC')
                 ->limit(120)

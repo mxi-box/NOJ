@@ -86,9 +86,9 @@ class GroupModel extends Model
     public function countGroupContest($gid)
     {
         return [
-            "contest_ahead" => DB::table("contest")->where(["gid"=>$gid])->where("begin_time", ">", DB::raw("now()"))->count(),
-            "contest_going" => DB::table("contest")->where(["gid"=>$gid])->where("begin_time", "<=", DB::raw("now()"))->where("end_time", ">=", DB::raw("now()"))->count(),
-            "contest_end" => DB::table("contest")->where(["gid"=>$gid])->where("end_time", "<", DB::raw("now()"))->count()
+            "contest_ahead" => DB::table("contest")->where(["gid"=>$gid])->where("begin_time", ">", DB::raw("CURRENT_TIMESTAMP(0)"))->count(),
+            "contest_going" => DB::table("contest")->where(["gid"=>$gid])->where("begin_time", "<=", DB::raw("CURRENT_TIMESTAMP(0)"))->where("end_time", ">=", DB::raw("CURRENT_TIMESTAMP(0)"))->count(),
+            "contest_end" => DB::table("contest")->where(["gid"=>$gid])->where("end_time", "<", DB::raw("CURRENT_TIMESTAMP(0)"))->count()
         ];
     }
 
@@ -270,7 +270,6 @@ class GroupModel extends Model
         ->where('contest.gid', $gid)
         ->where('contest.practice', 1)
         ->orderBy('contest.created_at', 'desc')
-        ->distinct()
         ->get()->all();
         $user_id=Auth::user()->id;
         foreach ($problems as $key => $value) {
@@ -362,7 +361,7 @@ class GroupModel extends Model
             "custom_icon"=>null,
             "custom_title"=>null,
             "created_at"=>date("Y-m-d H:i:s")
-        ]);
+        ], "gid");
         return DB::table("group_member")->insert([
             "uid"=>$uid,
             "gid"=>$gid,

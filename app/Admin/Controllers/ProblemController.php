@@ -110,7 +110,7 @@ class ProblemController extends Controller
         $grid=new Grid(new Problem);
         $grid->model()->where([
             'markdown'=>1,
-            'OJ'=>OJ::where(['ocode'=>'noj'])->first()->oid,
+            'oj'=>OJ::where(['ocode'=>'noj'])->first()->oid,
         ])->orderBy('pcode', 'asc');
         $grid->column('pid', "ID")->sortable();
         $grid->column('pcode', "PCode")->editable()->sortable();
@@ -210,8 +210,12 @@ class ProblemController extends Controller
             } else {
                 $form->chunk_file('test_case');
             }
-
-            $form->ignore(['test_case']);
+            
+            if ($form->isEditing()) {
+                $form->ignore(['test_case']);
+            } else {
+                $form->ignore(['test_case', 'pid']);
+            }
 
             //Hidden parameters
 

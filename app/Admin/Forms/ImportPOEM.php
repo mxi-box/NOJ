@@ -95,13 +95,13 @@ class ImportPOEM extends Form
                 'note'         => $problem['note'],
                 'input_type'   => 'standard input',
                 'output_type'  => 'standard output',
-                'OJ'           => 1,
+                'oj'           => 1,
                 'tot_score'    => $problem['extra']['totScore'],
                 'markdown'     => $problem['extra']['markdown'],
                 'force_raw'    => $problem['extra']['forceRaw'],
                 'partial'      => $problem['extra']['partial']
             ];
-            $pid=ProblemModel::insertGetId($pro);
+            $pid=ProblemModel::insertGetId($pro, 'pid');
 
             //migrate sample
             $sample_count=0;
